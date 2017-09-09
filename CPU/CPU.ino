@@ -122,6 +122,7 @@ void loop(){
 
 void updateChannels(){
   killTimer = millis();
+  //Update right drive channel
   while(digitalRead(rightDriveCh) == LOW){
     if((millis() - killTimer) > killDelay){ //If this channel signal stays low for this amount of time it turns everything off
       frontRight.write(90);
@@ -137,6 +138,7 @@ void updateChannels(){
     while(digitalRead(rightDriveCh) == HIGH){}
     durationrightDriveCh = micros() - previousTimerightDriveCh;
   }
+  //Update left drive channel
   while(digitalRead(leftDriveCh) == LOW){}
   if(digitalRead(leftDriveCh) == HIGH){
     previousTimeleftDriveCh = micros();
@@ -144,13 +146,15 @@ void updateChannels(){
     durationleftDriveCh = micros() - previousTimeleftDriveCh;
   }
   /*
+  //Update air horn channel
   while(digitalRead(airHornCh) == LOW){}
   if(digitalRead(airHornCh) == HIGH){
     previousTimeairHornCh = micros();
     while(digitalRead(airHornCh) == HIGH){}
     durationairHornCh = micros() - previousTimeairHornCh;
   }
-  /*
+  //Update channel 6
+  while(digitalRead(Ch6) == LOW){}
   if(digitalRead(Ch6) == HIGH){
     previousTimeCh6 = micros();
     while(digitalRead(Ch6) == HIGH){}
@@ -159,7 +163,7 @@ void updateChannels(){
   */
 }
 
-void tankDrive(float multiplier){
+void oldTankDrive(float multiplier){
   //Drive using tank controls (2 sticks up and down)
   //This converts the channel duration (1070 to 1910) to 0 <= x <= 180 for servo control, constrain ensures the # is between 0 and 180
   rightPower = constrain((durationrightDriveCh-1070)/4.7,0,180);
@@ -182,7 +186,7 @@ void tankDrive(float multiplier){
   backLeft.write(constrain(leftPower,6,180));
 }
 
-void newTankDive(float multiplier){
+void tankDive(float multiplier){
   //Convert joystic values to useable range
   rightPower = map(durationrightDriveCh,1000,2000,-90,90);
   leftPower = map(durationleftDriveCh,1000,2000,-90,90);
@@ -205,8 +209,8 @@ void newTankDive(float multiplier){
 void arcadeDrive(){
   //Drive using arcade controls (1 stick up, down, left, and right)
   //turningDeadZone compensates for incidental turning when stick is almost stait up or down
-  yValue = (((durationleftDriveCh-1000)/5.5)-90); //Converts to 90 > y > -90
-  xValue = (((durationrightDriveCh-1000)/5.5)-90); //Converts to 90 > x > -90
+  yValue = map(durationrightDriveCh,1000,2000,-90,90); //Converts to 90 > y > -90
+  xValue = map(durationrightDriveCh,1000,2000,-90,90); //Converts to 90 > x > -90
 
   if(yValue > 0){ //Forward
     if(xValue > turningDeadZone){ //Right
