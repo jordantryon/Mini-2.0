@@ -33,11 +33,9 @@
 #define backLeftMotorController 28
 
 //Include files
-#include <LiquidCrystal.h>
 #include <Servo.h>
 
 //Define inputs and outputs
-LiquidCrystal lcd(RS,EN,DI4,DI5,DI6,DI7);
 Servo frontRight;
 Servo frontLeft;
 Servo backRight;
@@ -94,11 +92,6 @@ void setup(){
   //Output definitions
   //pinMode(airHornRelay,OUTPUT);
   //digitalWrite(airHornRelay,LOW);
-  
-  lcd.begin(16,2);
-  lcd.print("Firing: waiting");
-  lcd.setCursor(0,1);
-  lcd.print("Horns: disabled ");
 
   frontRight.attach(frontRightMotorController);
   frontLeft.attach(frontLeftMotorController);
@@ -120,6 +113,13 @@ void setup(){
   digitalWrite(27,LOW);
   digitalWrite(29,LOW);
 }
+
+void loop(){
+  updateChannels();
+  tankDrive(1);
+  //airHornControl();
+}
+
 void updateChannels(){
   killTimer = millis();
   while(digitalRead(rightDriveCh) == LOW){
@@ -158,6 +158,7 @@ void updateChannels(){
   }
   */
 }
+
 void tankDrive(float multiplier){
   //Drive using tank controls (2 sticks up and down)
   //This converts the channel duration (1070 to 1910) to 0 <= x <= 180 for servo control, constrain ensures the # is between 0 and 180
@@ -180,6 +181,7 @@ void tankDrive(float multiplier){
   backRight.write(constrain(rightPower,6,180));
   backLeft.write(constrain(leftPower,6,180));
 }
+
 void newTankDive(float multiplier){
   //Convert joystic values to useable range
   rightPower = map(durationrightDriveCh,1000,2000,-90,90);
@@ -199,6 +201,7 @@ void newTankDive(float multiplier){
   backRight.write(constrain(rightPower,6,180));
   backLeft.write(constrain(leftPower,6,180));
 }
+
 void arcadeDrive(){
   //Drive using arcade controls (1 stick up, down, left, and right)
   //turningDeadZone compensates for incidental turning when stick is almost stait up or down
@@ -234,38 +237,20 @@ void arcadeDrive(){
     }
   }
 }
+
 void barrelControl(){
   //Barrel Control
   if((durationairHornCh >= 2000) && (firing == false) && (fireReleased == true)){
     Serial1.println(1,DEC);
-    lcd.setCursor(0,0);
-    lcd.print("Firing: started");
     firing = true;
     fireReleased = false;
   }
   if(Serial1.available() > 0){
     if(Serial1.parseInt() == 4){
-      lcd.setCursor(0,0);
-      lcd.print("Firing: waiting");
       firing = false;
     }
   }
   if((fireReleased == false) && (durationairHornCh <= 1000)){
     fireReleased = true;
   }
-}
-/*
-void airHornControl(){
-  if(durationairHornCh >= 1500){
-    digitalWrite(airHornRelay,HIGH);
-  }
-  else{
-    digitalWrite(airHornRelay,LOW);
-  }
-}
-*/
-void loop(){
-  updateChannels();
-  tankDrive(1);
-  //airHornControl();
 }
