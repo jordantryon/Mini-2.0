@@ -206,14 +206,14 @@ void loop(){
             digitalWrite(relayWhiteS,LOW);
             break;
           case 7:
+            digitalWrite(relayWhite,HIGH);
+            delay(500);
+            digitalWrite(relayWhite,LOW);
+            break;
+          case 8:
             digitalWrite(relayGreenS,HIGH);
             delay(500);
             digitalWrite(relayGreenS,LOW);
-            break;
-          case 8:
-            digitalWrite(relayGrayS,HIGH);
-            delay(500);
-            digitalWrite(relayGrayS,LOW);
             break;
           default:
             break;
